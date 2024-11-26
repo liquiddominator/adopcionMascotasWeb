@@ -1,0 +1,88 @@
+﻿@* Index.cshtml *@
+@model IEnumerable<adopcionMascotasWeb.Models.Pet>
+@{
+    ViewData["Title"] = "Mascotas";
+}
+
+<div class="container">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
+
+    @if (User.IsInRole("admin"))
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary mb-3">Crear Nueva Mascota</a>
+        </p>
+    }
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <img src="/images/pets/default-pet.jpg" class="card-img-top" alt="Imagen por defecto" style="height: 200px; object-fit: cover;">
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text">
+                            <strong>Especie:</strong> @item.Species<br />
+                            <strong>Raza:</strong> @item.Breed<br />
+                            <strong>Edad:</strong> @(item.BirthDate.HasValue ? $"{DateTime.Now.Year - item.BirthDate.Value.Year} años" : "No especificada")<br />
+                            <strong>Estado:</strong> 
+                            <span class="badge @(item.AdoptionStatus == "disponible" ? "bg-success" : 
+                                              item.AdoptionStatus == "en proceso" ? "bg-warning" : "bg-info")">
+                                @item.AdoptionStatus
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group" role="group">
+                            <a asp-action="Details" asp-route-id="@item.PetId" class="btn btn-info btn-sm">Detalles</a>
+                            @if (User.IsInRole("admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.PetId" class="btn btn-warning btn-sm">Editar</a>
+                                <a asp-action="Delete" asp-route-id="@item.PetId" class="btn btn-danger btn-sm">Eliminar</a>
+                            }
+                            @if (User.Identity.IsAuthenticated && item.AdoptionStatus == "disponible")
+                            {
+                                <form asp-action="RequestAdoption" asp-route-id="@item.PetId" onsubmit="return confirm('¿Estás seguro que deseas solicitar la adopción?')" style="display: inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Solicitar Adopción</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info mt-3">
+            No hay mascotas disponibles en este momento.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar mensajes de éxito/error si existen
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                alert('@TempData["Success"]');
+            </text>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                alert('@TempData["Error"]');
+            </text>
+        }
+    </script>
+}
