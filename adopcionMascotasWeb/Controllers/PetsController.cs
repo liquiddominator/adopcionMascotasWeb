@@ -16,7 +16,7 @@ namespace adopcionMascotasWeb.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public PetsController(AdopcionContext context, IWebHostEnvironment webHostEnvironment)
-        {
+        {//
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
